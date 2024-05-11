@@ -68,6 +68,7 @@
 								<p>We'll be using Cyclistic's historical bike trip data from the last 12 months, which is publicly available <a href="https://divvy-tripdata.s3.amazonaws.com/index.html">here.</a>
 								The data is made available by Motivate International Inc. under this <a href="https://www.divvybikes.com/data-license-agreement">license.</a> The data is stored in spreadsheets. There are 12 files total:</p>
 	<pre>
+		<code>
 			1.	divvy_tripdata_202206
 			2.	divvy_tripdata_202207
 			3.	divvy_tripdata_202208
@@ -80,9 +81,11 @@
 			10.	divvy_tripdata_202303
 			11.	divvy_tripdata_202304
 			12.	divvy_tripdata_202305
+		</code>
 	</pre>
 								<p>It is structured data, organized in rows (records) and columns (fields). Each record represents one trip, and each trip has a unique field that identifies it: ride_id . Each trip is anonymized and includes the following fields:</p>
     <pre>
+		<code>
 		        * ride_id               #Ride id - unique
 		        * rideable_type         #Bike type - Classic, Docked, Electric
 			* started_at            #Trip start day and time
@@ -95,7 +98,8 @@
 			* start_lng             #Trip start longitute   
 			* end_lat               #Trip end latitude  
 			* end_lat               #Trip end longitute   
-			* member_casual         #Rider type - Member or Casual 									
+			* member_casual         #Rider type - Member or Casual
+		</code> 									
 	</pre>
 								<p>Bike station data that is made publicly available by the <a href="https://www.chicago.gov/city/en/narr/foia/data_disclaimer.html">city of Chicago</a> will also be used. 
 									It can be downloaded <a href="https://divvy-tripdata.s3.amazonaws.com/index.html">here.</a>  In terms of bias and credibility, both data sources we are using ROCCC:</p>
@@ -123,6 +127,7 @@
 								<p># Create full_year_data table</p>
 								<p>I started to my analysis by grouping all the tables into one data for easy navigations and extracting data, also to make any change I want without affecting the original data.</p>
 	<pre>
+		<code>
 		create table full_year_data 
 		(
 		ride_id nvarchar(255),
@@ -200,18 +205,22 @@
 		select 
 		*
 		from
-		 Cyclistic..[divvy-tripdata-202305]										 
+		 Cyclistic..[divvy-tripdata-202305]	
+		</code>									 
 	</pre>						
 								<p>Then I added a new column called "month" by extracting the month value from "started_at" column.</p>
 	<pre>
+		<code>
 		alter table Cyclistic..full_year_data
 		add month float
 		
 		update Cyclistic..full_year_data
-		set month = MONTH(started_at)										
+		set month = MONTH(started_at)
+	</code>										
 	</pre>						
 								<p>I then used the "month" column to categorize the full year into seasons which will be handy during the analysis to find different trends and pattern.</p>
 	<pre>
+		<code>
 		alter table Cyclistic..full_year_data
 		add season varchar(255)
 		update Cyclistic..full_year_data
@@ -230,10 +239,12 @@
 					  when month = 4 then 'spring'
 					  when month = 5 then 'spring'
 					  else null
-					end											
+					end	
+				</code>										
 	</pre>								
 								<p>Originally when I added "day_of_week" column the days were represented by number (1 = 'Saturday' and 7 = 'Friday'), but I've updated it to show names instead of numbers.</p>
 	<pre>
+		<code>
 		UPDATE 
 		    Cyclistic..full_year_data
 	    SET  
@@ -248,11 +259,13 @@
 					WHEN day_of_week = '7' THEN 'Saturday' 
 				END
 	    WHERE
-			day_of_week IN ('1', '2', '3', '4', '5', '6', '7')											
+			day_of_week IN ('1', '2', '3', '4', '5', '6', '7')
+		</code>											
 	</pre>							
 								<p>I began my analysis with a simple Quary to compare between the seasons by:</p>
 								<p>•	Total ride</p>
 	<pre>
+		<code>
 	select
 		        season, 
 		        count(ride_id) as total_rides
@@ -262,10 +275,12 @@
 		        season
         order by 
 		        2 desc
+			</code>
 	</pre>									
 	                            <a href="#" class="image fit"><img src="images/total rides.jpg" alt="" style="width:172px;height:134px;"/></a>
 								<p>•	Average ride length </p>
 	<pre>
+		<code>
 	select
 		season,
 		cast(cast(avg(cast(CAST(ride_length as datetime) as float)) as datetime) as time(0))as avg_ride_length
@@ -275,13 +290,14 @@
 		        season
         order by 
 		        2 desc
-
+			</code>
 	</pre>									
 	                            <a href="#" class="image fit"><img src="images/avg ride length.jpg" alt="" style="width:195px;height:139px;"/></a>
 								<p>From the last 2 queries we can clearly see that summer is the busiest season.
 									Then I started to compere between "casual riders" & "member riders" by:</p>
 								<p>•	Average ride length (Ride type) </p>
 	<pre>
+		<code>
 	select
 		member_casual,
 		cast(cast(avg(cast(CAST(ride_length as datetime) as float)) as datetime) as time(0))as avg_ride_length
@@ -291,11 +307,13 @@
 		        member_casual
         order by 
 		        2 desc
+			</code>
 	</pre>									
 	                            <a href="#" class="image fit"><img src="images/avg ride length (ride type).jpg" alt="" style="width:232px;height:108px;"/></a>
 								<p>## casual riders have higher avg ride length than member riders by nearly double which is huge number 
 									so, we needed to check each individual month to explain this number</p>
 	<pre>
+		<code>
 		select
 		member_casual,
 		month,
@@ -322,6 +340,7 @@ group by
 		MONTH,member_casual,season
 order by 
        4 desc
+		</code>
 	</pre>							
 								<div class="row">
 									<div class="column">
@@ -335,6 +354,7 @@ order by
 									from this data we can make our initial hypothesis that casual & member riders may have different usage of the bikes.</p>
     							<p>•	Total rides per month</p>
 	<pre>
+		<code>
 		select
 		member_casual,
 		month,
@@ -362,7 +382,7 @@ group by
 		member_casual,month,season
 order by 
 		4 desc
-
+	</code>
 	</pre>									
 								<div class="row">
 									<div class="column">
@@ -376,6 +396,7 @@ order by
 									my conclusion is that (casual riders) maybe consist of tourists either local or foreign or people ride to enjoy the summer "summer vacations" which support my initial hypothesis.</p>
     							<p>•	Bike's type</p>
 	<pre>
+		<code>
 		select
 		member_casual,
 		rideable_type,
@@ -401,12 +422,14 @@ group by
 		member_casual,rideable_type
 order by 
 		3 desc
+	</code>
 	</pre>									
 								<a href="#" class="image fit"><img src="images/bike type.jpg" alt="" style="width:311px;height:196px;"/></a>
 								<p>## we notice 2 things: firstly, all docked bike rides had been made by casual members (there is no one uses docked bike among member riders), secondly, casual riders have way more rides by electric bike than classic bikes (1.29 million trips vs 0.85 million trips last year alone).
 									my conclusion is that casual riders ride for fun and practability not for exercise and don't mind the extra cost which again further support my hypothesis.</p>
 								<p>•	Total ride per day</p>
 	<pre>
+		<code>
 		select
 		member_casual,
 		day_of_week,
@@ -432,6 +455,7 @@ group by
 		member_casual,day_of_week
 order by 
 		3 desc
+	</code>
 	</pre>									
 								<div class="row">
 									<div class="column">
@@ -445,6 +469,7 @@ order by
 									my conclusion is that (casual riders) ride for fun (during the weekends) while (members riders) ride for work and everyday life.</p>
 								<p>•	Total ride per station</p>
 	<pre>
+		<code>
 		select top (50)
 		member_casual,
 		start_station_id,
@@ -474,6 +499,7 @@ group by
 		member_casual,start_station_id,start_lat,start_lng
 order by
 		5 desc
+	</code>
 	</pre>									
 								<a href="#" class="image fit"><img src="images/Total rides per station casual.jpg" alt="" style="width:520px;height:233px;"/></a>
 								<a href="#" class="image fit"><img src="images/Total rides per station member.jpg" alt="" style="width:520px;height:233px;"/></a>

@@ -75,6 +75,7 @@
 								<p>Same thing with minuteCalories, minuteIntensities, minuteSteps there were two files represents these data in (wide and narrow) format so I had to choose one format and I chose the wide format.</p>
 								<p>I also used hourlyCalories, hourlyIntensities, hourlySteps which may give me some insights about the user’s behavior during the day. Here are the files:</p>
 	<pre>
+		<code>
 		1.	dailyActivity_merged
 		2.	hourlyCalories_merged
 		3.	hourlyIntensities_merged
@@ -82,7 +83,7 @@
 		5.	minuteCaloriesWide_merged
 		6.	minuteIntensitiesWide_merged
 		7.	minuteStepsWide_merged
-		
+	</code>
 	</pre>
 								<h2>Data Assessment for credibility & integrity</h2>
 								<p>To determine the credibility, reliability and integrity of the dataset presented, I will utilize the <a href="https://www.coursera.org/learn/data-preparation/lecture/lHirM/what-is-bad-data">ROCCC</a> (Reliable, Original, Comprehensive, Current & Cited) data test model.</p>
@@ -104,6 +105,7 @@
 								<h2>Further data cleaning and manipulation via SQL</h2>
 								<p>I started my analysis by checking how many users in each file to be consistent in my analysis.</p>
 	<pre>
+		<code>
 		select
 		COUNT(distinct id)
 from
@@ -138,7 +140,7 @@ select
 		COUNT(distinct id)
 from
 		Bellabeat..minuteStepsWide_merged
-							 
+	</code>					 
 	</pre>	
 								<a href="#" class="image fit"><img src="images/user count.png" alt="" style="width:176px;height:387px;"/></a>
 								<p>## From the last 7 queries I confirmed that all tables are consistent as it all contain data of 33 users.</p>
@@ -147,6 +149,7 @@ from
 								<p>upon further inspection of the data in excel I have noticed that the sleeping records are not accurately entered as some days the user have entered the sleeping time as SedentaryMinutes, so to make all the data consistent I will combine (very active minutes, fairly active minutes and lightly active minutes) as total active minutes and if we subtract it from 1440(24 hr contain 1440 minutes) it will give us total sedentary minutes (sedentary minutes + sleeping minutes).</p>
 								<p>•	avg daily (steps, calories, active minutes, sedentary minutes)</p>
 	<pre>
+		<code>
 		select
 		Id,
 		averege_daily_steps,
@@ -175,10 +178,12 @@ from
 ) as avd_daily_steps
 order by 
 		3 desc
+	</code>
 	</pre>									
 	                            <a href="#" class="image fit"><img src="images/avg_daily.png" alt="" style="width:1402px;height:398px;"/></a>
 								<p>•	number of each demographic user </p>
 	<pre>
+		<code>
 		select
 		demograpghic_user,
 		count(demograpghic_user) as total_user
@@ -212,11 +217,13 @@ from
 	) as avd_daily_steps
 )as count
 group by demograpghic_user
+</code>
 	</pre>									
 	                            <a href="#" class="image fit"><img src="images/user type.png" alt="" style="width:226px;height:154px;"/></a>
 								<p>## I will further Analyse this query in Tableau. </p>
 								<p>•	daily status per weekday </p>
 	<pre>
+		<code>
 select
 	
 		datename(weekday,ActivityDate) as weekday,
@@ -230,11 +237,13 @@ group by
 		datename(weekday,ActivityDate) 
 order by 
 		2 desc
+	</code>
 	</pre>									
 	                            <a href="#" class="image fit"><img src="images/weekday.png" alt="" style="width:734px;height:213px;"/></a>
 								<p>## we can see from this query that Saturday is the highest avg_daily steps with the highest avg_daily total active minutes.</p>
     							<p>•	now we will see how many days did the users wear the smart band</p>
 	<pre>
+		<code>
 		select
 		usage,
 		count(total_days)
@@ -261,12 +270,14 @@ from
 ) as usage_table
 group by 
 		usage
+	</code>
 	</pre>									
 								<a href="#" class="image fit"><img src="images/usage.png" alt="" style="width:222px;height:140px;"/></a>
 								<p>## from the last 2 queries we see that 87% of total users (33) user wear the band more than 21 days. Which proves that our insight is fairly reliable and consistent.</p>
     							<h2>2.	I will explore all hourly data tables</h2>
 								<p>•	I will join all the hourly tables for easy categorization and exploration</p>
 	<pre>
+		<code>
 		select
 		hc.Id,
 		hc.ActivityHour,
@@ -285,11 +296,12 @@ from
 		Bellabeat..hourlySteps_merged as hs
 		 on hc.Id = hs.Id
 		 and hc.ActivityHour = hs.ActivityHour
-
+		</code>
 	</pre>									
 								<a href="#" class="image fit"><img src="images/hourly data.png" alt="" style="width:1405px;height:396px;"/></a>
 								<p>•	I will calculate hourly status throughout the day</p>
 	<pre>
+		<code>
 select
 		cast(ActivityHour as time) as time_of_day,
 		cast(avg(calories)as decimal(5,2)) as avg_calories_per_hour,
@@ -321,7 +333,7 @@ group by
 		cast(ActivityHour as time)
 order by
 		2 desc
-
+	</code>
 	</pre>						
 								<a href="#" class="image fit"><img src="images/24 hour data.png" alt="" style="width:705px;height:481px;"/></a>
 								<p>## from this query we see that (6:00 pm,7:00 pm,8:00 pm) are the busiest hours while (2:00 am,3:00 am,4:00 am) are the least busy hours as people mainly are asleep in these hours.</p>
